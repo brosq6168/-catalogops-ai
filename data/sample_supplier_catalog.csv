@@ -1,0 +1,10 @@
+sku,name,category,price,currency,stock,supplier_email
+SAFE-001,Steel Toe Safety Boot,Safety Footwear,79.99,EUR,120,supplier@example.com
+SAFE-002,,Safety Footwear,89.99,EUR,50,supplier@example.com
+SAFE-003,Protective Work Glove,Work Gloves,,EUR,200,supplier@example.com
+SAFE-003,Protective Work Glove,Work Gloves,12.50,EUR,200,supplier@example.com
+SAFE-004,High Visibility Jacket,Workwear,-5,EUR,30,supplier@example.com
+SAFE-005,Industrial Helmet,,45.00,EUR,0,
+SAFE-006,Warehouse Trousers,Workwear,39.99,EUR,-10,supplier@example.com
+SAFE-007,Steel Storage Rack,Storage Equipment,199.99,EUR,15,invalid-email
+SAFE-008,Emergency Work Light,Electrical Equipment,29.99,EUR,75,supplier@example.com
