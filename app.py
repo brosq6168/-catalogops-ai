@@ -1,5 +1,7 @@
 import streamlit as st
 
+from services.data_loader import load_catalog, load_demo_catalog
+
 st.set_page_config(
     page_title="CatalogOps AI",
     page_icon="📦",
@@ -19,15 +21,33 @@ st.info(
     "and does not contact real suppliers."
 )
 
-st.markdown("### What this prototype will do")
+st.markdown("### Load a catalog")
 
-st.write(
-    """
-    - Upload supplier catalog files
-    - Detect missing or inconsistent product data
-    - Classify exceptions by severity
-    - Draft supplier follow-up messages
-    - Track issue status
-    - Export reports
-    """
-)
+col1, col2 = st.columns(2)
+
+with col1:
+    uploaded_file = st.file_uploader(
+        "Upload supplier CSV",
+        type=["csv"],
+    )
+
+with col2:
+    if st.button("Load demo catalog"):
+        st.session_state["catalog"] = load_demo_catalog()
+
+if uploaded_file is not None:
+    st.session_state["catalog"] = load_catalog(uploaded_file)
+
+if "catalog" in st.session_state:
+    catalog = st.session_state["catalog"]
+
+    st.success(f"Loaded {len(catalog)} product records.")
+
+    st.markdown("### Catalog preview")
+    st.dataframe(catalog, use_container_width=True)
+else:
+    st.markdown(
+        """
+        Upload a CSV file or click **Load demo catalog** to begin.
+        """
+    )

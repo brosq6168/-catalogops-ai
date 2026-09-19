@@ -1,14 +1,17 @@
-from pathlib import Path
+REQUIRED_COLUMNS = [
+    "sku",
+    "name",
+    "category",
+    "price",
+    "currency",
+    "stock",
+    "supplier_email",
+]
 
-import pandas as pd
+VALID_CURRENCIES = {"EUR", "USD", "GBP", "KES"}
 
-
-def load_catalog(file_source) -> pd.DataFrame:
-    """Load a supplier catalog from an uploaded file or local path."""
-    return pd.read_csv(file_source)
-
-
-def load_demo_catalog() -> pd.DataFrame:
-    """Load the fictional demo catalog."""
-    path = Path("data/sample_supplier_catalog.csv")
-    return load_catalog(path)
+SEVERITY_LEVELS = {
+    "high": 1,
+    "medium": 2,
+    "low": 3,
+}
