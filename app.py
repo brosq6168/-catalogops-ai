@@ -3,6 +3,10 @@ from datetime import datetime, timezone
 import pandas as pd
 import streamlit as st
 
+from services.ai_assistant import (
+    draft_supplier_message,
+    summarize_exception,
+)
 from services.data_loader import load_catalog, load_demo_catalog
 from services.exporter import dataframe_to_csv_bytes
 from services.validator import validate_catalog
@@ -230,26 +234,40 @@ with left:
 with right:
     st.markdown("#### Operator review")
 
-    default_message = (
-        f"Subject: Clarification needed for "
-        f"{selected_exception['sku']}\n\n"
-        "Hello,\n\n"
-        f"We are reviewing the catalog record for "
-        f"{selected_exception['sku']}. "
-        f"{selected_exception['issue_description']} "
-        "Please confirm the correct information so we can "
-        "complete the catalog record.\n\n"
-        "Kind regards,\n"
-        "Catalog Operations"
-    )
+    message_key = f"message_{selected_index}"
+
+    if message_key not in st.session_state:
+        st.session_state[message_key] = (
+            selected_exception.get(
+                "supplier_message",
+                draft_supplier_message(selected_exception),
+            )
+        )
+
+    if st.button(
+        "Generate draft",
+        key=f"generate_{selected_index}",
+    ):
+        st.session_state[message_key] = (
+            draft_supplier_message(selected_exception)
+        )
+        st.session_state[
+            f"summary_{selected_index}"
+        ] = summarize_exception(selected_exception)
+        st.success("Draft generated.")
+
+    if st.session_state.get(
+        f"summary_{selected_index}"
+    ):
+        st.info(
+            st.session_state[
+                f"summary_{selected_index}"
+            ]
+        )
 
     message = st.text_area(
         "Supplier follow-up draft",
-        value=selected_exception.get(
-            "supplier_message",
-            default_message,
-        ),
-        key=f"message_{selected_index}",
+        key=message_key,
         height=220,
     )
 
