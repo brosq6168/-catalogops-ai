@@ -26,3 +26,8 @@ def summarize_exception(exception: dict) -> str:
         f"{issue_type} ({severity} priority). "
         f"Recommended action: {action}"
     )
+
+
+def get_ai_mode() -> str:
+    """Return the AI mode currently used by the application."""
+    return "Fallback mode"

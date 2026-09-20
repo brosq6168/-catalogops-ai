@@ -1,70 +1,116 @@
 # CatalogOps AI
 
-CatalogOps AI is a small AI-assisted operations prototype for reviewing supplier
-catalogs, identifying data problems and helping an operator close exceptions.
+CatalogOps AI is a human-in-the-loop supplier catalog operations desk.
+
+It helps an operations user review supplier product data, identify catalog
+exceptions, draft follow-up messages and track issues toward resolution.
 
 ## Problem
 
-Supplier catalog files can contain missing product details, duplicate SKUs,
-invalid prices, incomplete supplier contacts and other issues. These problems
-slow down product listings and require manual follow-up.
+Supplier catalogs often contain missing product details, duplicate SKUs,
+invalid prices, incomplete stock values and missing supplier contacts. These
+issues slow down product listing and require manual checking and follow-up.
 
-## Solution
+## What the app does
 
-CatalogOps AI allows an operator to:
+- Loads a fictional supplier catalog.
+- Accepts supplier CSV uploads.
+- Validates required product fields.
+- Detects duplicate SKUs.
+- Identifies invalid prices and stock values.
+- Checks supplier email formats.
+- Classifies exceptions by severity.
+- Filters issues by severity, type and status.
+- Shows an exception review panel.
+- Drafts editable supplier follow-up messages.
+- Tracks operator notes, status and update time.
+- Exports clean catalogs and exception reports.
 
-1. Upload a supplier CSV file.
-2. Validate product records.
-3. Identify and classify catalog exceptions.
-4. Review the issue and suggested action.
-5. Draft an editable supplier follow-up message.
-6. Track the issue status.
-7. Export a clean catalog and exception report.
+## AI-assisted workflow
 
-## Intended user
+The application uses a human-in-the-loop model:
 
-A supplier or catalog operations specialist who needs to review product data
-quickly and follow up on missing information.
+1. Deterministic rules detect data problems.
+2. AI assistance summarises the issue and drafts a message.
+3. The operator reviews and edits the draft.
+4. The operator chooses a status and adds a note.
+5. The operator saves or exports the result.
 
-## Project type
+No messages are sent automatically.
 
-Portfolio prototype using fictional supplier data. It is not a production
-e-commerce system and does not send real supplier emails or process real
-payments.
+## Current AI mode
 
-## Main design principle
+The current prototype uses a local fallback AI service. It does not require an
+external API key and remains usable when external AI services are unavailable.
 
-Automation should reduce repetitive work while keeping a human responsible for
-reviewing and closing each exception.
+## Demo
 
-## Version-one scope
+Live demo: to be added after deployment.
 
-### Included
+## Screenshots
 
-- Uploading a supplier CSV.
-- Loading sample demo data.
-- Checking required catalog fields.
-- Detecting duplicate SKUs.
-- Detecting missing product names.
-- Detecting missing categories.
-- Detecting invalid or missing prices.
-- Detecting invalid stock values.
-- Detecting missing supplier emails.
-- Assigning issue severity.
-- Showing an exception table.
-- Drafting editable supplier follow-up messages.
-- Updating exception status.
-- Exporting a clean catalog.
-- Exporting an exception report.
+### Dashboard
 
-### Not included
+![CatalogOps AI dashboard](screenshots/dashboard.png)
 
-- User accounts or authentication.
-- Real supplier emails.
-- Real payment processing.
-- Real supplier data.
-- Automatic purchasing.
-- Fully autonomous AI agents.
-- Complex machine-learning model training.
-- Multi-user collaboration.
-- Production-grade security or scaling.
+### Exception review
+
+![Exception review panel](screenshots/exception-review.png)
+![Exception review panel](screenshots/exception-review0.png)
+![Exception review panel](screenshots/exception-review-operatornote.png)
+
+### Saved review
+![Exception review panel](screenshots/saved-review.png)
+### Exports
+
+![Export reports](screenshots/exports.png)
+## Technology
+
+- Python
+- Streamlit
+- Pandas
+- Git and GitHub
+- Pytest
+
+## Project structure
+
+```text
+catalogops-ai/
+├── app.py
+├── README.md
+├── DECISIONS.md
+├── pytest.ini
+├── requirements.txt
+├── data/
+│   └── sample_supplier_catalog.csv
+├── services/
+│   ├── ai_assistant.py
+│   ├── data_loader.py
+│   ├── exporter.py
+│   ├── validation_rules.py
+│   └── validator.py
+└── tests/
+    └── test_validator.py
+```
+
+## Data and privacy
+
+The repository uses fictional supplier data only.
+
+Do not upload real customer, supplier, payment or personal information to the
+public demo.
+
+## Limitations
+
+- Reviews are stored in Streamlit session state.
+- The current AI service uses a local fallback.
+- Supplier messages are drafted but never sent.
+- The application is a portfolio prototype, not a production operations system.
+
+## What I learned
+
+- Deterministic rules are useful for predictable data-quality checks.
+- AI is useful for drafting and explanation.
+- Human review is important when outputs may affect suppliers or customers.
+- A small complete workflow is more useful than an unfinished complex system.
+"""

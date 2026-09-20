@@ -3,8 +3,10 @@ from datetime import datetime, timezone
 import pandas as pd
 import streamlit as st
 
+from pandas.errors import EmptyDataError
 from services.ai_assistant import (
     draft_supplier_message,
+     get_ai_mode,
     summarize_exception,
 )
 from services.data_loader import load_catalog, load_demo_catalog
@@ -84,10 +86,33 @@ if uploaded_file is not None:
         st.session_state.get("loaded_source")
         != f"upload:{uploaded_name}"
     ):
-        load_new_catalog(load_catalog(uploaded_file))
-        st.session_state["loaded_source"] = (
-            f"upload:{uploaded_name}"
-        )
+        try:
+            uploaded_catalog = load_catalog(uploaded_file)
+
+            if uploaded_catalog.empty:
+                st.error(
+                    "The uploaded CSV contains no product records."
+                )
+                st.stop()
+
+            load_new_catalog(uploaded_catalog)
+            st.session_state["loaded_source"] = (
+                f"upload:{uploaded_name}"
+            )
+
+        except EmptyDataError:
+            st.error(
+                "The uploaded CSV is empty. "
+                "Please upload a CSV containing supplier records."
+            )
+            st.stop()
+
+        except Exception:
+            st.error(
+                "The uploaded file could not be read. "
+                "Please upload a valid CSV file."
+            )
+            st.stop()
 
 if "catalog" not in st.session_state:
     st.markdown(
@@ -233,37 +258,45 @@ with left:
 
 with right:
     st.markdown("#### Operator review")
+    st.caption(f"AI assistance: {get_ai_mode()}")
 
-    message_key = f"message_{selected_index}"
+st.caption(
+    "AI assistance creates drafts only. Review and edit the message "
+    "before saving. No messages are sent automatically."
+)
 
-    if message_key not in st.session_state:
-        st.session_state[message_key] = (
-            selected_exception.get(
-                "supplier_message",
-                draft_supplier_message(selected_exception),
-            )
+message_key = f"message_{selected_index}"
+
+if message_key not in st.session_state:
+    st.session_state[message_key] = (
+        selected_exception.get(
+            "supplier_message",
+            draft_supplier_message(selected_exception),
         )
+    )
 
-    if st.button(
-        "Generate draft",
-        key=f"generate_{selected_index}",
-    ):
-        st.session_state[message_key] = (
-            draft_supplier_message(selected_exception)
-        )
-        st.session_state[
-            f"summary_{selected_index}"
-        ] = summarize_exception(selected_exception)
-        st.success("Draft generated.")
-
-    if st.session_state.get(
+if st.button(
+    "Generate draft",
+    key=f"generate_{selected_index}",
+):
+    st.session_state[message_key] = (
+        draft_supplier_message(selected_exception)
+    )
+    st.session_state[
         f"summary_{selected_index}"
-    ):
-        st.info(
-            st.session_state[
-                f"summary_{selected_index}"
-            ]
-        )
+    ] = summarize_exception(selected_exception)
+    st.success("Draft generated.")
+
+if st.session_state.get(f"summary_{selected_index}"):
+    st.info(
+        st.session_state[f"summary_{selected_index}"]
+    )
+
+if st.session_state.get(f"summary_{selected_index}"):
+    st.markdown("#### AI-assisted summary")
+    st.info(
+        st.session_state[f"summary_{selected_index}"]
+    )
 
     message = st.text_area(
         "Supplier follow-up draft",
