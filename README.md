@@ -45,7 +45,7 @@ external API key and remains usable when external AI services are unavailable.
 
 ## Demo
 
-Live demo: to be added after deployment.
+[Open the live demo] (https://myd65hutt9yzrhalht8ob2.streamlit.app/)
 
 ## Screenshots
 
