@@ -10,7 +10,17 @@ E-commerce supplier catalogs frequently arrive corrupted with missing metadata, 
 [Supplier CSV Upload] ──> [Pandas Validation Pipeline] ──> [Deterministic Exception Engine]
                                                                      │
 [Validated Clean Output] <── [Human Review Desk] <── [Structured LLM Prompt Generation (Contextual Drafts)]
-
+```mermaid
+flowchart TD
+    A[Catalog ingestion request] --> B{Circuit breaker:<br/>LLM endpoint healthy?}
+    B -->|Healthy| C[LLM structured extraction]
+    B -->|Degraded| D[Local template fallback<br/>zero-latency, deterministic]
+    C --> E[Pydantic v2<br/>strict validation contract]
+    D --> E
+    E -->|Valid| F[(Catalog database)]
+    E -->|Invalid / ambiguous| G[Human-in-the-loop<br/>review queue]
+    G --> F
+```
 ### Key Engineering Features
 * **Human-in-the-Loop Orchestration:** Combines strict backend constraints with LLMs, ensuring no automated communication is dispatched without internal operator approval.
 * **Deterministic Exception Filter:** Leverages an optimized Pandas data processing layer to execute lightning-fast validation passes on massive datasets before piping contextual exceptions to the AI layer.
