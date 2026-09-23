@@ -33,7 +33,7 @@ def test_fallback_mode_generation_contract(mock_exception_data, monkeypatch):
     assert "TEST-SKU-99" in result.subject
     assert "Invalid Price" in result.summary
     assert "high priority" in result.summary.lower()
-    assert "Contact vendor" in result.body
+    assert "Contact vendor" in result.summary
 
 def test_ai_mode_string_leakage(monkeypatch):
     """Verify system reporting metrics match configurations exactly."""
