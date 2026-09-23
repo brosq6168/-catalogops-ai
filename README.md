@@ -7,9 +7,6 @@ E-commerce supplier catalogs frequently arrive corrupted with missing metadata, 
 
 ## 🛠️ System Architecture & AI Pattern
 
-[Supplier CSV Upload] ──> [Pandas Validation Pipeline] ──> [Deterministic Exception Engine]
-                                                                     │
-[Validated Clean Output] <── [Human Review Desk] <── [Structured LLM Prompt Generation (Contextual Drafts)]
 ```mermaid
 flowchart TD
     A[Catalog ingestion request] --> B{Circuit breaker:<br/>LLM endpoint healthy?}
@@ -25,7 +22,7 @@ flowchart TD
 * **Human-in-the-Loop Orchestration:** Combines strict backend constraints with LLMs, ensuring no automated communication is dispatched without internal operator approval.
 * **Deterministic Exception Filter:** Leverages an optimized Pandas data processing layer to execute lightning-fast validation passes on massive datasets before piping contextual exceptions to the AI layer.
 * **Production AI Architecture:** Architected using a clean service-oriented module layout (`services/ai_assistant.py`), cleanly isolating the core application logic from the LLM endpoint provider layer.
-* **Resilient Fallback Fallback Handling:** Engineered with a specialized failover layer ensuring consistent operational desktop uptime even during third-party LLM service degradation or API rate-limiting thresholds.
+* **Resilient Fallback Handling:** Engineered with a specialized failover layer ensuring consistent operational desktop uptime even during third-party LLM service degradation or API rate-limiting thresholds.
 
 ## 🧰 Tech Stack
 * **Core Systems:** Python, Pandas, Streamlit UI
@@ -55,7 +52,7 @@ catalogops-ai/
 
 ## Demo
 
-[Open the live demo] (https://myd65hutt9yzrhalht8ob2.streamlit.app/)
+[Open the live demo](https://myd65hutt9yzrhalht8ob2.streamlit.app/)
 
 ## Screenshots
 
@@ -76,4 +73,3 @@ catalogops-ai/
 ![Export reports](screenshots/exports.png)
 
 ```
-
