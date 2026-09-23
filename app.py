@@ -1,18 +1,16 @@
 from datetime import datetime, timezone
-
 import pandas as pd
 import streamlit as st
-
 from pandas.errors import EmptyDataError
+
+# Importing updated multi-mode AI engine endpoints
 from services.ai_assistant import (
-    draft_supplier_message,
-     get_ai_mode,
-    summarize_exception,
+    process_catalog_exception,
+    get_ai_mode,
 )
 from services.data_loader import load_catalog, load_demo_catalog
 from services.exporter import dataframe_to_csv_bytes
 from services.validator import validate_catalog
-
 
 st.set_page_config(
     page_title="CatalogOps AI",
@@ -59,10 +57,12 @@ st.write(
     "and help close operational issues."
 )
 
-st.info(
-    "Prototype mode: this application uses fictional demo data "
-    "and does not contact real suppliers."
-)
+# Render System Status Dynamic Badge in the main canvas header area
+ai_status = get_ai_mode()
+if "Production" in ai_status:
+    st.success(f"🤖 Connected: {ai_status}")
+else:
+    st.warning(f"⚠️ Failover Activated: {ai_status}")
 
 st.markdown("### Load a catalog")
 
@@ -258,45 +258,37 @@ with left:
 
 with right:
     st.markdown("#### Operator review")
-    st.caption(f"AI assistance: {get_ai_mode()}")
-
-st.caption(
-    "AI assistance creates drafts only. Review and edit the message "
-    "before saving. No messages are sent automatically."
-)
-
-message_key = f"message_{selected_index}"
-
-if message_key not in st.session_state:
-    st.session_state[message_key] = (
-        selected_exception.get(
-            "supplier_message",
-            draft_supplier_message(selected_exception),
-        )
+    st.caption(
+        "AI assistance creates drafts only. Review and edit the message "
+        "before saving. No messages are sent automatically."
     )
 
-if st.button(
-    "Generate draft",
-    key=f"generate_{selected_index}",
-):
-    st.session_state[message_key] = (
-        draft_supplier_message(selected_exception)
-    )
-    st.session_state[
-        f"summary_{selected_index}"
-    ] = summarize_exception(selected_exception)
-    st.success("Draft generated.")
+    message_key = f"message_{selected_index}"
+    summary_key = f"summary_{selected_index}"
 
-if st.session_state.get(f"summary_{selected_index}"):
-    st.info(
-        st.session_state[f"summary_{selected_index}"]
-    )
+    # Initialize keys into Streamlit session state context if missing
+    if message_key not in st.session_state:
+        if selected_exception.get("supplier_message"):
+            st.session_state[message_key] = selected_exception["supplier_message"]
+        else:
+            # First execution initialization run
+            draft_object = process_catalog_exception(selected_exception)
+            st.session_state[message_key] = f"{draft_object.subject}\n\n{draft_object.body}"
+            st.session_state[summary_key] = draft_object.summary
 
-if st.session_state.get(f"summary_{selected_index}"):
-    st.markdown("#### AI-assisted summary")
-    st.info(
-        st.session_state[f"summary_{selected_index}"]
-    )
+    if st.button(
+        "Generate draft",
+        key=f"generate_{selected_index}",
+    ):
+        with st.spinner("Processing exception contexts through AI gateway..."):
+            draft_object = process_catalog_exception(selected_exception)
+            st.session_state[message_key] = f"{draft_object.subject}\n\n{draft_object.body}"
+            st.session_state[summary_key] = draft_object.summary
+            st.success("Draft generated.")
+
+    if st.session_state.get(summary_key):
+        st.markdown("#### AI-assisted summary")
+        st.info(st.session_state[summary_key])
 
     message = st.text_area(
         "Supplier follow-up draft",
@@ -399,6 +391,10 @@ affected_skus = {
 clean_catalog = catalog.copy()
 
 if "sku" in clean_catalog.columns:
+    clean_catalog = clean_catalog[
+        ~clean_catalog["sku"].astype(str).isin(affected_skus)
+    ]
+
     clean_catalog = clean_catalog[
         ~clean_catalog["sku"].astype(str).isin(affected_skus)
     ]
